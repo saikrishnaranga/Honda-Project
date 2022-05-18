@@ -1,0 +1,19 @@
+trigger CoverageTrigger on Coverage__c (after insert, after update) {
+
+  List<Id> lstIds = new List<Id>();
+  List<Task> tsklist = new List<Task>();
+  for(Coverage__c cc : [select id, name from Coverage__c where Id in: Trigger.New]){
+    
+    lstIds.add(cc)
+  }
+  for(Coverage__c ctr : lstIds){
+  		for (Task tsk : [select id, Coverage__r.id from Task where Coverage__r.id IN : lstIds  ])
+    		if(lstIds.contains(tsk.Coverage__r.id)) && (Task.Legacy_Coverage_Id__c == Coverage__c.Legacy_Coverage_Id__c){
+          
+          tsk.Coverage__r.id = ctr.id;
+          tsklist.add(tsk);
+        }
+  
+  }
+  update tsklist;
+}
